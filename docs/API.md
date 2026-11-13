@@ -72,7 +72,10 @@ incremental-lang keeps a source text and its lossless concrete syntax tree in
 step under edits, rebuilding only the part of the tree around each change. A
 language supplies a [`Grammar`](#grammar); a [`Document`](#document) does the
 lexing, parsing, incremental reparsing, and the checks that keep the result
-identical to a fresh parse.
+identical to a fresh parse. That guarantee holds for a grammar that keeps the
+[grammar contract](#grammar): two of its rules, one character of lexer lookahead
+and no outside decision depending on a reparsable node's contents, cannot be
+checked from a single reparse.
 
 | Item | Role |
 |---|---|
@@ -1573,7 +1576,8 @@ lexing, so an edit never costs more than about two full parses.
 
 **Snapshots.** [`tree`](#documenttree) borrows the current tree; clone it to
 keep a version. While a snapshot is alive, the next edit copies the path it
-changes instead of updating it in place, so the snapshot never changes.
+changes instead of updating it in place, so the snapshot never changes. The
+copy costs time in proportion to the widths of the child arrays on that path.
 
 `Document<G>` is `Send` and `Sync` when `G` and its kind are. Edits take
 `&mut self`; to give other threads something to read while editing continues,
