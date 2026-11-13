@@ -20,8 +20,8 @@ use crate::tree::Tree;
 /// [`Grammar`] and the initial text; then report each change with
 /// [`edit`](Self::edit). Each edit updates the text and rebuilds as little of
 /// the tree as is safe — usually the innermost reparsable node around the
-/// change — and the resulting tree is always identical to what parsing the new
-/// text from scratch would produce.
+/// change — and, for a grammar that keeps the [`Grammar`] contract, the resulting
+/// tree is identical to what parsing the new text from scratch would produce.
 ///
 /// # Cost of an edit
 ///
@@ -49,7 +49,9 @@ use crate::tree::Tree;
 /// so a language server can hand one to a worker thread and go on editing.
 /// While a snapshot is alive, the next edit copies the child arrays on its
 /// path instead of updating them in place (copy-on-write), so the snapshot
-/// never changes; once the snapshot is dropped, edits are in place again.
+/// never changes; once the snapshot is dropped, edits are in place again. The
+/// copy costs time in proportion to the widths of those arrays, so a very wide
+/// level pays it on each edit made while a snapshot is held.
 ///
 /// # Examples
 ///

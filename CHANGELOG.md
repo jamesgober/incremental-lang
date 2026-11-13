@@ -21,6 +21,30 @@
 
 ---
 
+## [1.0.1] - 2026-11-12
+
+A documentation patch. No change to the library code or its behaviour.
+
+### Changed
+
+- **The fresh-parse guarantee now states its condition.** The README and crate
+  docs said the tree after an edit is *always* the tree a fresh parse would
+  produce. That holds for a grammar that keeps the grammar contract, and two of
+  its rules cannot be checked from a single reparse: the lexer may look at most
+  one character past each token, and no parse decision outside a reparsable
+  node may depend on its contents. The README, crate docs, `Document` rustdoc
+  and `docs/API.md` now say so, and the crate docs warn that a lexer which scans
+  ahead and backs off (maximal munch with fallback) breaks the first rule.
+- **Edit cost is described precisely.** The README said reparsing costs time in
+  proportion to the edit and that an edit's cost does not grow with the file.
+  The lexing and parsing work is in proportion to the node around the edit, but
+  the text splice moves the text after the edit, finding the node scans the
+  children of each level up to the edit, and an edit made while a snapshot is
+  held copies the child arrays on its path. The README and docs now list those
+  costs.
+
+---
+
 ## [1.0.0] - 2026-10-07
 
 API freeze. The public surface introduced in 0.2.0 is now stable and frozen
@@ -162,7 +186,8 @@ Initial scaffold and repository bootstrap. No domain logic yet &mdash; this rele
 - `.github/workflows/ci.yml` CI matrix; `deny.toml`, `clippy.toml`, `rustfmt.toml`.
 - `dev/DIRECTIVES.md` and `dev/ROADMAP.md` (committed engineering standards + plan).
 
-[Unreleased]: https://github.com/jamesgober/incremental-lang/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/jamesgober/incremental-lang/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/jamesgober/incremental-lang/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jamesgober/incremental-lang/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/jamesgober/incremental-lang/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jamesgober/incremental-lang/releases/tag/v0.1.0

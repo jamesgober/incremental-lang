@@ -5,13 +5,22 @@
 //! the part of the tree around each change.
 //!
 //! An editor or language server reparses on every keystroke. Parsing the whole
-//! file each time scales with the file; incremental reparsing scales with the
-//! edit. This crate finds the innermost node around a change that can be
-//! reparsed on its own — a block, an object, an argument list — relexes and
-//! reparses just that node, and splices the result into a tree that shares
-//! every untouched subtree with the previous one. The result is always the
-//! tree a fresh parse would produce: every shortcut is checked, and when a
-//! check fails the document falls back to a larger node or the whole text.
+//! file each time scales with the file; incremental reparsing does lexing and
+//! parsing work that scales with the node around the edit. This crate finds the
+//! innermost node around a change that can be reparsed on its own — a block, an
+//! object, an argument list — relexes and reparses just that node, and splices
+//! the result into a tree that shares every untouched subtree with the previous
+//! one. The text splice and the search for the node are still linear in the text
+//! after the edit and in sibling counts; see [`Document`] for the full cost.
+//!
+//! For a grammar that keeps the [`Grammar`] contract, the result is the tree a
+//! fresh parse would produce: every shortcut that can be checked is checked,
+//! and when a check fails the document falls back to a larger node or the whole
+//! text. Two rules cannot be checked from a single reparse: the lexer may look
+//! at most one character past each token, and no parse decision outside a
+//! reparsable node may depend on its contents. A lexer that scans ahead and
+//! backs off (maximal munch with fallback, as table-driven lexer generators
+//! often do) breaks the first rule; mark no kind reparsable with such a lexer.
 //!
 //! ## The pieces
 //!
